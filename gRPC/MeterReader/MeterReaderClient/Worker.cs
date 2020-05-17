@@ -1,9 +1,6 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Google.Protobuf.WellKnownTypes;
 using Grpc.Net.Client;
 using MeterReaderWeb.Services;
 using Microsoft.Extensions.Configuration;
@@ -18,12 +15,14 @@ namespace MeterReaderClient
         private readonly IConfiguration _config;
         private MeterReadingService.MeterReadingServiceClient _client = null;
         private readonly ReadingFactory _readingFactory;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public Worker(ILogger<Worker> logger, IConfiguration config, ReadingFactory readingFactory)
+        public Worker(ILogger<Worker> logger, IConfiguration config, ReadingFactory readingFactory, ILoggerFactory loggerFactory)
         {
             _logger = logger;
             _config = config;
             _readingFactory = readingFactory;
+            _loggerFactory = loggerFactory;
         }
 
         protected MeterReadingService.MeterReadingServiceClient Client
@@ -32,7 +31,11 @@ namespace MeterReaderClient
             {
                 if (_client == null)
                 {
-                    var channel = GrpcChannel.ForAddress(_config["Service:ServerUrl"]);
+                    var opts = new GrpcChannelOptions()
+                    {
+                        LoggerFactory = _loggerFactory
+                    };
+                    var channel = GrpcChannel.ForAddress(_config["Service:ServerUrl"], opts);
                     _client = new MeterReadingService.MeterReadingServiceClient(channel);
                 }
                 return _client;
