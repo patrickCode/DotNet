@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Grpc.Core;
 using Grpc.Net.Client;
 using MeterReaderWeb.Services;
 using Microsoft.Extensions.Configuration;
@@ -57,14 +58,23 @@ namespace MeterReaderClient
                     packet.Readings.Add(_readingFactory.Generate());
                 }
 
-                var result = Client.AddReading(packet);
-                if (result.Success == ReadingStatus.Success)
+                try
                 {
-                    _logger.LogInformation($"Success: {result.Message}");
+                    var result = Client.AddReading(packet);
+                    if (result.Success == ReadingStatus.Success)
+                    {
+                        _logger.LogInformation($"Success: {result.Message}");
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Failed: {result.Message}");
+                    }
                 }
-                else
+                catch (RpcException exception)
                 {
-                    _logger.LogInformation($"Failed: {result.Message}");
+                    _logger.LogError($"RPC Exception - Status Code: {exception.StatusCode}");
+                    _logger.LogError($"{exception.Trailers}");
+                    _logger.LogError(exception.Message);
                 }
                 await Task.Delay(_config.GetValue<int>("Service:DelayInternal"), stoppingToken);
             }

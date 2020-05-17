@@ -31,6 +31,19 @@ namespace MeterReaderWeb.Services
                 {
                     foreach (var r in request.Readings)
                     {
+                        if (r.ReadinValue < 1000)
+                        {
+                            _logger.LogError("RPC Exception - Out of range");
+                            // Keys must not contain spaces
+                            var trailer = new Metadata()
+                            {
+                                { "BadValue", r.ReadinValue.ToString() },
+                                { "Field", "ReadingValue" },
+                                { "CustomerId", r.CustomerId.ToString() }
+                            };
+                            throw new RpcException(new Status(StatusCode.OutOfRange, "Value too low"), trailer);
+                        }
+
                         var reading = new MeterReading
                         {
                             Value = r.ReadinValue,
@@ -47,10 +60,14 @@ namespace MeterReaderWeb.Services
                     }
                 }
             }
-            catch (Exception error)
+            catch (RpcException)
             {
-                result.Message = $"Exception thrown while adding reading";
+                throw;
+            }
+            catch (Exception error)
+            {   
                 _logger.LogError($"Exception thrown: {error.Message}");
+                throw new RpcException(Status.DefaultCancelled, $"Exception thrown: {error.Message}");
             }
 
             return result;
