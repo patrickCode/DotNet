@@ -9,8 +9,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeterReaderLib", "MeterRead
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{3354F1FC-F5ED-4575-968E-00EDC820E357}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Clients", "Clients", "{556BF8F4-270F-4B9C-BCE9-A8F78D4889BE}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeterReaderClient", "MeterReaderClient\MeterReaderClient.csproj", "{4D8FC955-BDE6-4DAB-A405-EFFAE081DEBD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeterReaderStreamingClient", "MeterReaderStreamingClient\MeterReaderStreamingClient.csproj", "{CE96704E-C37E-481D-8C66-DC52B44018D4}"
