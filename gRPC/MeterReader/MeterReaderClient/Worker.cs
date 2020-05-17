@@ -60,7 +60,11 @@ namespace MeterReaderClient
 
                 try
                 {
-                    var result = Client.AddReading(packet);
+                    var headers = new Metadata
+                    {
+                        { "Authorization", $"Bearer {await GenerateToken()}" }
+                    };
+                    var result = Client.AddReading(packet, headers: headers);
                     if (result.Success == ReadingStatus.Success)
                     {
                         _logger.LogInformation($"Success: {result.Message}");
@@ -78,6 +82,21 @@ namespace MeterReaderClient
                 }
                 await Task.Delay(_config.GetValue<int>("Service:DelayInternal"), stoppingToken);
             }
+        }
+
+        private async Task<string> GenerateToken()
+        {
+            var userName = "pratikb@abc123.com";
+            var password = "P@ssw0rd!";
+
+            var request = new TokenRequest()
+            {
+                Username = userName,
+                Password = password
+            };
+
+            var tokenResponse = await Client.CreateTokenAsync(request);
+            return tokenResponse.Token;
         }
     }
 }
