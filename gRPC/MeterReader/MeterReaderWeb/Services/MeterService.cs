@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using Google.Protobuf.WellKnownTypes;
+using Grpc.Core;
 using MeterReaderWeb.Data;
 using MeterReaderWeb.Data.Entities;
 using Microsoft.Extensions.Logging;
@@ -53,6 +54,19 @@ namespace MeterReaderWeb.Services
             }
 
             return result;
+        }
+
+        public override async Task<Empty> SendDiagnostics(IAsyncStreamReader<ReadingMessage> requestStream, ServerCallContext context)
+        {
+            await Task.Run(async () =>
+            {
+                await foreach(var reading in requestStream.ReadAllAsync())
+                {
+                    _logger.LogInformation($"Receing stream - {reading.ReadinValue}");
+                }
+            });
+
+            return new Empty();
         }
     }
 }
